@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row align-items-center min-vh-100">
+    <div class="col-lg-6 mx-auto">
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold mb-2">🍳 Smart Kitchen</h1>
+            <p class="lead text-muted mb-4">Never miss an expiry date again. Track your kitchen inventory like a pro!</p>
+        </div>
+
+        <div class="card shadow-lg border-0 mb-4">
+            <div class="card-body p-5">
+                <h4 class="card-title mb-4">Welcome to Your Smart Kitchen</h4>
+                <p class="text-muted mb-4">
+                    Smart Kitchen helps you track all your kitchen items, avoid expiry dates, manage stock levels, and easily import/export your inventory.
+                </p>
+
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg mb-2">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </a>
+                    <a href="{{ url_for('signup') }}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-person-plus"></i> Create Account
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 gap-3">
+            <div class="col">
+                <div class="card border-0 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-eye display-6 text-primary mb-2"></i>
+                        <h5 class="card-title">Track Everything</h5>
+                        <p class="card-text small text-muted">Keep tabs on all your kitchen items in one place</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card border-0 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-exclamation-circle display-6 text-warning mb-2"></i>
+                        <h5 class="card-title">Smart Alerts</h5>
+                        <p class="card-text small text-muted">Get notified about expiring and low stock items</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card border-0 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-qr-code display-6 text-success mb-2"></i>
+                        <h5 class="card-title">Barcode Scan</h5>
+                        <p class="card-text small text-muted">Quickly add items by scanning barcodes with your camera</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card border-0 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-download display-6 text-info mb-2"></i>
+                        <h5 class="card-title">Import/Export</h5>
+                        <p class="card-text small text-muted">Backup your inventory with CSV files</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == 'add' %}Add Item{% else %}Edit Item{% endif %} - Smart Kitchen{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <h2 class="mb-4">
+            <i class="bi {% if mode == 'add' %}bi-plus-circle{% else %}bi-pencil{% endif %}"></i>
+            {% if mode == 'add' %}Add New Item{% else %}Edit Item{% endif %}
+        </h2>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST" novalidate>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Item Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                value="{% if item %}{{ item.name }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="category" class="form-label">Category *</label>
+                            <select class="form-select" id="category" name="category" required>
+                                <option value="">Select Category</option>
+                                <option value="Dairy" {% if item and item.category == 'Dairy' %}selected{% endif %}>Dairy</option>
+                                <option value="Vegetables" {% if item and item.category == 'Vegetables' %}selected{% endif %}>Vegetables</option>
+                                <option value="Fruits" {% if item and item.category == 'Fruits' %}selected{% endif %}>Fruits</option>
+                                <option value="Snacks" {% if item and item.category == 'Snacks' %}selected{% endif %}>Snacks</option>
+                                <option value="Beverages" {% if item and item.category == 'Beverages' %}selected{% endif %}>Beverages</option>
+                                <option value="Grains" {% if item and item.category == 'Grains' %}selected{% endif %}>Grains</option>
+                                <option value="Spices" {% if item and item.category == 'Spices' %}selected{% endif %}>Spices</option>
+                                <option value="Frozen" {% if item and item.category == 'Frozen' %}selected{% endif %}>Frozen</option>
+                                <option value="Other" {% if item and item.category == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="barcode" class="form-label">Barcode</label>
+                            <input type="text" class="form-control" id="barcode" name="barcode" 
+                                placeholder="Leave empty or scan" value="{% if item %}{{ item.barcode }}{% endif %}">
+                            <small class="form-text text-muted">
+                                <a href="{{ url_for('scan') }}" target="_blank">Scan barcode</a> and copy here
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="location" class="form-label">Location *</label>
+                            <select class="form-select" id="location" name="location" required>
+                                <option value="Pantry" {% if item and item.location == 'Pantry' %}selected{% endif %}>Pantry</option>
+                                <option value="Fridge" {% if item and item.location == 'Fridge' %}selected{% endif %}>Fridge</option>
+                                <option value="Freezer" {% if item and item.location == 'Freezer' %}selected{% endif %}>Freezer</option>
+                                <option value="Counter" {% if item and item.location == 'Counter' %}selected{% endif %}>Counter</option>
+                                <option value="Cupboard" {% if item and item.location == 'Cupboard' %}selected{% endif %}>Cupboard</option>
+                                <option value="Other" {% if item and item.location == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="quantity" class="form-label">Quantity *</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" 
+                                step="0.01" value="{% if item %}{{ item.quantity }}{% else %}1{% endif %}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="unit" class="form-label">Unit *</label>
+                            <select class="form-select" id="unit" name="unit" required>
+                                <option value="pcs" {% if item and item.unit == 'pcs' %}selected{% endif %}>Pieces</option>
+                                <option value="kg" {% if item and item.unit == 'kg' %}selected{% endif %}>Kilogram</option>
+                                <option value="g" {% if item and item.unit == 'g' %}selected{% endif %}>Gram</option>
+                                <option value="L" {% if item and item.unit == 'L' %}selected{% endif %}>Liter</option>
+                                <option value="ml" {% if item and item.unit == 'ml' %}selected{% endif %}>Milliliter</option>
+                                <option value="box" {% if item and item.unit == 'box' %}selected{% endif %}>Box</option>
+                                <option value="pack" {% if item and item.unit == 'pack' %}selected{% endif %}>Pack</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="low_stock_threshold" class="form-label">Low Stock Alert</label>
+                            <input type="number" class="form-control" id="low_stock_threshold" name="low_stock_threshold" 
+                                step="0.01" value="{% if item %}{{ item.low_stock_threshold }}{% else %}5{% endif %}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="expiry_date" class="form-label">Expiry Date</label>
+                        <input type="date" class="form-control" id="expiry_date" name="expiry_date" 
+                            value="{% if item and item.expiry_date %}{{ item.expiry_date.isoformat() }}{% endif %}">
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('items_list') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi {% if mode == 'add' %}bi-plus-circle{% else %}bi-check-circle{% endif %}"></i>
+                            {% if mode == 'add' %}Add Item{% else %}Save Changes{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

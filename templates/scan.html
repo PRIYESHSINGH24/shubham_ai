@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Barcode Scanner - Smart Kitchen{% endblock %}
+
+{% block extra_css %}
+<style>
+    #scanner-container {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    video {
+        max-width: 100%;
+        border-radius: 0.5rem;
+    }
+    canvas {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">
+    <i class="bi bi-qr-code"></i> Barcode Scanner
+</h2>
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-info-circle"></i> 
+                    Allow camera access and position the barcode in the frame. Once scanned, copy the code and use it in the item form.
+                </div>
+
+                <div id="scanner-container" class="mb-4">
+                    <video id="video" style="width: 100%; border-radius: 0.5rem;"></video>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="scanned-barcode" placeholder="Scanned barcode will appear here" readonly>
+                    </div>
+                    <div class="col-md-4 d-grid gap-2">
+                        <button id="copy-btn" class="btn btn-success" onclick="copyBarcode()">
+                            <i class="bi bi-clipboard"></i> Copy Code
+                        </button>
+                    </div>
+                </div>
+
+                <hr>
+
+                <h5>Instructions:</h5>
+                <ol>
+                    <li>Click "Start Scanner" to activate your camera</li>
+                    <li>Position any barcode in the frame</li>
+                    <li>The barcode will automatically scan</li>
+                    <li>Click "Copy Code" to copy the barcode</li>
+                    <li>Go to Add Item form and paste in the Barcode field</li>
+                </ol>
+
+                <div class="d-grid gap-2">
+                    <button id="start-btn" class="btn btn-primary btn-lg" onclick="startScanner()">
+                        <i class="bi bi-play-fill"></i> Start Scanner
+                    </button>
+                    <button id="stop-btn" class="btn btn-warning btn-lg" onclick="stopScanner()" style="display:none;">
+                        <i class="bi bi-stop-fill"></i> Stop Scanner
+                    </button>
+                </div>
+
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6>Last Scans:</h6>
+                    <div id="scan-history" class="small">
+                        <p class="text-muted mb-0">No scans yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
+<script>
+let scanHistory = [];
+
+function startScanner() {
+    Quagga.init({
+        inputStream: {
+            name: "Live",
+            type: "LiveStream",
+            target: document.querySelector('#video'),
+            constraints: {
+                facingMode: "environment"
+            }
+        },
+        decoder: {
+            workers: 2,
+            debug: true,
+            multiple: false,
+            readers: [
+                "code_128_reader",
+                "ean_reader",
+                "ean_8_reader",
+                "code_39_reader",
+                "upc_reader",
+                "upc_e_reader"
+            ]
+        }
+    }, function(err) {
+        if (err) {
+            console.log(err);
+            alert('Camera not accessible. Please check permissions.');
+            return;
+        }
+        Quagga.start();
+        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('stop-btn').style.display = 'block';
+    });
+
+    Quagga.onDetected(function(result) {
+        if (result.codeResult.code) {
+            let barcode = result.codeResult.code;
+            document.getElementById('scanned-barcode').value = barcode;
+            
+            // Add to history
+            scanHistory.unshift(barcode);
+            if (scanHistory.length > 5) scanHistory.pop();
+            
+            updateHistory();
+            
+            // Beep sound (simple feedback)
+            playBeep();
+        }
+    });
+}
+
+function stopScanner() {
+    Quagga.stop();
+    Quagga.offDetected();
+    document.getElementById('start-btn').style.display = 'block';
+    document.getElementById('stop-btn').style.display = 'none';
+}
+
+function copyBarcode() {
+    let barcode = document.getElementById('scanned-barcode').value;
+    if (!barcode) {
+        alert('No barcode to copy. Scan a barcode first.');
+        return;
+    }
+    
+    navigator.clipboard.writeText(barcode).then(() => {
+        let btn = document.getElementById('copy-btn');
+        let originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+        }, 2000);
+    });
+}
+
+function updateHistory() {
+    let html = '';
+    if (scanHistory.length === 0) {
+        html = '<p class="text-muted mb-0">No scans yet</p>';
+    } else {
+        scanHistory.forEach((code, index) => {
+            html += `<div class="mb-2">
+                <code>${code}</code>
+                <button class="btn btn-sm btn-outline-secondary ms-2" onclick="document.getElementById('scanned-barcode').value='${code}'; copyBarcode();">
+                    <i class="bi bi-clipboard"></i>
+                </button>
+            </div>`;
+        });
+    }
+    document.getElementById('scan-history').innerHTML = html;
+}
+
+function playBeep() {
+    // Simple beep using Web Audio API
+    try {
+        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let oscillator = audioContext.createOscillator();
+        let gain = audioContext.createGain();
+        
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.1);
+    } catch (e) {
+        console.log('Audio not available');
+    }
+}
+</script>
+{% endblock %}
